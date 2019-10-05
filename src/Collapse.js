@@ -29,6 +29,8 @@ export class Collapse extends React.PureComponent {
 
     fixedHeight: PropTypes.number,
 
+    closedHeight: PropTypes.number,
+
     theme: PropTypes.objectOf(PropTypes.string),
     style: PropTypes.object,
 
@@ -95,7 +97,7 @@ export class Collapse extends React.PureComponent {
 
 
   componentDidUpdate(_, prevState) {
-    const {isOpened, onRest, onMeasure} = this.props;
+    const {isOpened, onRest, onMeasure, closedHeight} = this.props;
 
     if (this.state.currentState === IDLING) {
       onRest();
@@ -107,7 +109,7 @@ export class Collapse extends React.PureComponent {
     }
 
     const from = this.wrapper.clientHeight;
-    const to = isOpened ? this.getTo() : 0;
+    const to = isOpened ? this.getTo() : closedHeight;
 
     if (from !== to) {
       this.setState({currentState: RESIZING, from, to});
@@ -160,11 +162,16 @@ export class Collapse extends React.PureComponent {
       return {height: 'auto'};
     }
 
-    if (this.state.currentState === WAITING && !this.state.to) {
-      return {overflow: 'hidden', height: 0};
+    let {closedHeight} = this.props;
+    if (!closedHeight) {
+      closedHeight = 0;
     }
 
-    return {overflow: 'hidden', height: Math.max(0, height)};
+    if (this.state.currentState === WAITING && !this.state.to) {
+      return {overflow: 'hidden', height: closedHeight};
+    }
+
+    return {overflow: 'hidden', height: Math.max(closedHeight, height)};
   };
 
 
